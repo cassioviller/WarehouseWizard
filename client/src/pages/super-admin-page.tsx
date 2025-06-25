@@ -133,7 +133,7 @@ export default function SuperAdminPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Papel
                         </label>
-                        <select name="role" className="w-full p-2 border border-gray-300 rounded-md">
+                        <select name="role" className="w-full p-2 border border-gray-300 rounded-md" defaultValue="user">
                           <option value="user">Usuário</option>
                           <option value="admin">Administrador</option>
                           <option value="super_admin">Super Admin</option>

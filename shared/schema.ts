@@ -9,8 +9,8 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   name: text("name").notNull(),
   role: text("role").notNull().default("user"), // user, admin, super_admin
-  ownerId: integer("owner_id").notNull(), // tenant isolation
-  createdAt: timestamp("created_at").defaultNow(),
+  ownerId: integer("owner_id").notNull().default(1), // tenant isolation
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const categories = pgTable("categories", {

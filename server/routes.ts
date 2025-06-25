@@ -1,5 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { 
@@ -7,6 +9,8 @@ import {
   insertMaterialSchema, insertStockEntrySchema, insertStockExitSchema,
   insertUserSchema
 } from "@shared/schema";
+
+const scryptAsync = promisify(scrypt);
 
 function requireAuth(req: any, res: any, next: any) {
   if (!req.isAuthenticated()) {
@@ -240,8 +244,16 @@ export function registerRoutes(app: Express): Server {
       if (user.role !== 'super_admin') {
         return res.status(403).json({ error: "Access denied" });
       }
+      const { password, ...otherData } = req.body;
+      
+      // Hash the password properly
+      const salt = randomBytes(16).toString('hex');
+      const hashedPassword = (await scryptAsync(password, salt, 64)) as Buffer;
+      const finalPassword = `${hashedPassword.toString('hex')}.${salt}`;
+      
       const userData = insertUserSchema.parse({
-        ...req.body,
+        ...otherData,
+        password: finalPassword,
         ownerId: 1
       });
       const newUser = await storage.createUser(userData);
