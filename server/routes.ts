@@ -4,7 +4,8 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { 
   insertCategorySchema, insertSupplierSchema, insertEmployeeSchema, 
-  insertMaterialSchema, insertStockEntrySchema, insertStockExitSchema 
+  insertMaterialSchema, insertStockEntrySchema, insertStockExitSchema,
+  insertUserSchema
 } from "@shared/schema";
 
 function requireAuth(req: any, res: any, next: any) {

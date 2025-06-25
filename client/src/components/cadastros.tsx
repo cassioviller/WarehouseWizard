@@ -231,8 +231,142 @@ export default function Cadastros() {
           </div>
         )}
 
+        {activeSubTab === 'users' && user?.role === 'super_admin' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Gerenciar Usuários</h3>
+              <Button 
+                onClick={() => setShowUserForm(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Usuário
+              </Button>
+            </div>
+
+            {showUserForm && (
+              <Card>
+                <CardContent className="p-6">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.currentTarget);
+                    createUserMutation.mutate({
+                      username: formData.get('username') as string,
+                      password: formData.get('password') as string,
+                      name: formData.get('name') as string,
+                      role: formData.get('role') as string,
+                    });
+                  }}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Nome de Usuário
+                        </label>
+                        <Input name="username" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Nome Completo
+                        </label>
+                        <Input name="name" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Senha
+                        </label>
+                        <Input name="password" type="password" required />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Papel
+                        </label>
+                        <select name="role" className="w-full p-2 border border-gray-300 rounded-md">
+                          <option value="user">Usuário</option>
+                          <option value="admin">Administrador</option>
+                          <option value="super_admin">Super Admin</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex justify-end space-x-2 mt-4">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowUserForm(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button type="submit" disabled={createUserMutation.isPending}>
+                        {createUserMutation.isPending ? 'Criando...' : 'Criar Usuário'}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="bg-white rounded-lg shadow">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Usuário
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nome
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Papel
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Criado em
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users?.map((userItem) => (
+                      <tr key={userItem.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                          {userItem.username}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {userItem.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant={userItem.role === 'super_admin' ? 'default' : 'secondary'}>
+                            {userItem.role === 'super_admin' ? 'Super Admin' : 
+                             userItem.role === 'admin' ? 'Admin' : 'Usuário'}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(userItem.createdAt).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            {userItem.username !== 'cassio' && (
+                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-900">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Other tabs placeholders */}
-        {activeSubTab !== 'materials' && (
+        {activeSubTab !== 'materials' && activeSubTab !== 'users' && (
           <div className="p-6 text-center py-12">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Settings className="text-gray-400 text-2xl" />
