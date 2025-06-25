@@ -16,7 +16,7 @@ import { pool } from "./db";
 const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
   
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -75,7 +75,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 
@@ -127,7 +127,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(categories)
       .where(and(eq(categories.id, id), eq(categories.ownerId, ownerId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getSuppliers(ownerId: number): Promise<Supplier[]> {
@@ -155,7 +155,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(suppliers)
       .where(and(eq(suppliers.id, id), eq(suppliers.ownerId, ownerId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getEmployees(ownerId: number): Promise<Employee[]> {
@@ -183,7 +183,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(employees)
       .where(and(eq(employees.id, id), eq(employees.ownerId, ownerId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async getMaterials(ownerId: number): Promise<Material[]> {
@@ -233,7 +233,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(materials)
       .where(and(eq(materials.id, id), eq(materials.ownerId, ownerId)));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async updateMaterialStock(materialId: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void> {
