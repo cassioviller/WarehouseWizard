@@ -8,14 +8,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Warehouse, Loader2 } from "lucide-react";
 
 export default function AuthPage() {
-  const { user, loginMutation, registerMutation } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const { user, loginMutation } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    name: "",
-    role: "user" as const,
-    ownerId: 1,
   });
 
   // Redirect if already logged in
@@ -25,17 +21,13 @@ export default function AuthPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLogin) {
-      loginMutation.mutate({
-        username: formData.username,
-        password: formData.password,
-      });
-    } else {
-      registerMutation.mutate(formData);
-    }
+    loginMutation.mutate({
+      username: formData.username,
+      password: formData.password,
+    });
   };
 
-  const isPending = loginMutation.isPending || registerMutation.isPending;
+  const isPending = loginMutation.isPending;
 
   return (
     <div className="min-h-screen flex">
@@ -52,49 +44,12 @@ export default function AuthPage() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="mb-6">
-                <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsLogin(true)}
-                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                      isLogin
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
-                    }`}
-                  >
-                    Entrar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsLogin(false)}
-                    className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                      !isLogin
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-600 hover:text-gray-900"
-                    }`}
-                  >
-                    Cadastrar
-                  </button>
-                </div>
+              <div className="mb-6 text-center">
+                <h2 className="text-xl font-semibold text-gray-900">Entrar no Sistema</h2>
+                <p className="text-sm text-gray-600 mt-1">Faça login para acessar o almoxarifado</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLogin && (
-                  <div>
-                    <Label htmlFor="name">Nome completo</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      placeholder="Digite seu nome"
-                      required={!isLogin}
-                    />
-                  </div>
-                )}
 
                 <div>
                   <Label htmlFor="username">Usuário</Label>
@@ -132,10 +87,10 @@ export default function AuthPage() {
                   {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isLogin ? "Entrando..." : "Cadastrando..."}
+                      Entrando...
                     </>
                   ) : (
-                    isLogin ? "Entrar" : "Cadastrar"
+                    "Entrar"
                   )}
                 </Button>
               </form>

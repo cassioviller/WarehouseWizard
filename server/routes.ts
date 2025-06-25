@@ -218,6 +218,36 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Users management (super_admin only)
+  app.get("/api/users", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
+
+  app.post("/api/users", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      const userData = insertUserSchema.parse(req.body);
+      const newUser = await storage.createUser(userData);
+      res.status(201).json(newUser);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ error: "Failed to create user" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

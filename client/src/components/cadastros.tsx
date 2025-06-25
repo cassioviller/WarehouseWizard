@@ -7,14 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Settings } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Material, Category } from "@shared/schema";
+import type { Material, Category, User, Employee, Supplier } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
 
-type SubTab = 'materials' | 'categories' | 'employees' | 'suppliers' | 'third-parties';
+type SubTab = 'materials' | 'categories' | 'employees' | 'suppliers' | 'third-parties' | 'users';
 
 export default function Cadastros() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('materials');
   const [searchTerm, setSearchTerm] = useState("");
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const { data: materials, isLoading } = useQuery<(Material & { category: Category | null })[]>({
     queryKey: ["/api/materials"],
@@ -22,6 +26,19 @@ export default function Cadastros() {
 
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+  });
+
+  const { data: users } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+    enabled: user?.role === 'super_admin',
+  });
+
+  const { data: employees } = useQuery<Employee[]>({
+    queryKey: ["/api/employees"],
+  });
+
+  const { data: suppliers } = useQuery<Supplier[]>({
+    queryKey: ["/api/suppliers"],
   });
 
   const filteredMaterials = materials?.filter(material => 
@@ -42,12 +59,36 @@ export default function Cadastros() {
     }
   };
 
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: { username: string; password: string; name: string; role: string }) => {
+      const res = await apiRequest("POST", "/api/users", userData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setShowUserForm(false);
+      setEditingUser(null);
+      toast({
+        title: "Usuário criado com sucesso",
+        description: "O novo usuário foi adicionado ao sistema.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao criar usuário",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const subTabs = [
     { id: 'materials' as SubTab, label: 'Materiais' },
     { id: 'categories' as SubTab, label: 'Categorias' },
     { id: 'employees' as SubTab, label: 'Funcionários' },
     { id: 'suppliers' as SubTab, label: 'Fornecedores' },
     { id: 'third-parties' as SubTab, label: 'Terceiros' },
+    ...(user?.role === 'super_admin' ? [{ id: 'users' as SubTab, label: 'Usuários' }] : []),
   ];
 
   return (
