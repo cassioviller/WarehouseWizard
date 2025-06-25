@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Almoxarifado specific colors */
+  --almox-blue-50: hsl(207, 100%, 97%);
+  --almox-blue-100: hsl(207, 100%, 94%);
+  --almox-blue-500: hsl(207, 90%, 54%);
+  --almox-blue-600: hsl(207, 90%, 47%);
+  --almox-blue-700: hsl(207, 90%, 40%);
+  --almox-green-500: hsl(142, 76%, 36%);
+  --almox-green-600: hsl(142, 76%, 29%);
+  --almox-red-500: hsl(0, 84%, 60%);
+  --almox-red-600: hsl(0, 84%, 53%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Custom styles for Almoxarifado */
+.almox-primary-btn {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium transition-colors;
+}
+
+.almox-green-btn {
+  @apply bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition-colors;
+}
+
+.almox-red-btn {
+  @apply bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition-colors;
+}
+
+.almox-nav-tab {
+  @apply py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors;
+}
+
+.almox-nav-tab.active {
+  @apply border-primary text-primary;
+}
+
+.almox-nav-tab:not(.active) {
+  @apply border-transparent text-gray-500 hover:text-gray-700;
+}
+
+.almox-metric-card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+}
+
+.almox-form-input {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent;
+}
+
+.almox-form-select {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent;
+}
+
+.almox-table {
+  @apply w-full divide-y divide-gray-200;
+}
+
+.almox-table th {
+  @apply py-3 px-4 text-left font-medium text-gray-700;
+}
+
+.almox-table td {
+  @apply py-4 px-4;
+}
+
+.almox-table tr:hover {
+  @apply bg-gray-50;
+}
+
+.almox-status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.almox-status-badge.success {
+  @apply bg-green-100 text-green-800;
+}
+
+.almox-status-badge.warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.almox-status-badge.danger {
+  @apply bg-red-100 text-red-800;
+}
