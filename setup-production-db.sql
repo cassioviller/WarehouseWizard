@@ -1,6 +1,7 @@
 -- Setup script for production database
 -- Connection: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
 -- Updated schema with comprehensive warehouse management features
+-- IMPORTANTE: Execute este script no banco de produção antes do primeiro deploy
 
 -- Create database if it doesn't exist
 CREATE DATABASE IF NOT EXISTS almoxarifado;

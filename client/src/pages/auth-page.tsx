@@ -27,8 +27,7 @@ type LoginData = z.infer<typeof loginSchema>;
 type RegisterData = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
-  const { user, loginMutation, registerMutation } = useAuth();
-  const [activeTab, setActiveTab] = useState("login");
+  const { user, loginMutation } = useAuth();
 
   // Redirect if already logged in
   if (user) {
@@ -43,22 +42,8 @@ export default function AuthPage() {
     },
   });
 
-  const registerForm = useForm<RegisterData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      name: "",
-    },
-  });
-
   const onLogin = (data: LoginData) => {
     loginMutation.mutate(data);
-  };
-
-  const onRegister = (data: RegisterData) => {
-    registerMutation.mutate(data);
   };
 
   return (
@@ -82,141 +67,54 @@ export default function AuthPage() {
             <CardHeader className="text-center">
               <CardTitle>Acesso ao Sistema</CardTitle>
               <CardDescription>
-                Entre com suas credenciais ou crie uma nova conta
+                Entre com suas credenciais
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="login">Entrar</TabsTrigger>
-                  <TabsTrigger value="register">Cadastrar</TabsTrigger>
-                </TabsList>
 
-                {/* Login Tab */}
-                <TabsContent value="login">
-                  <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="login-username">Usuário</Label>
-                      <Input
-                        id="login-username"
-                        {...loginForm.register("username")}
-                        placeholder="Digite seu usuário"
-                        disabled={loginMutation.isPending}
-                      />
-                      {loginForm.formState.errors.username && (
-                        <p className="text-sm text-red-600">
-                          {loginForm.formState.errors.username.message}
-                        </p>
-                      )}
-                    </div>
+              <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Usuário</Label>
+                  <Input
+                    id="username"
+                    {...loginForm.register("username")}
+                    placeholder="Digite seu usuário"
+                    disabled={loginMutation.isPending}
+                  />
+                  {loginForm.formState.errors.username && (
+                    <p className="text-sm text-red-600">
+                      {loginForm.formState.errors.username.message}
+                    </p>
+                  )}
+                </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="login-password">Senha</Label>
-                      <Input
-                        id="login-password"
-                        type="password"
-                        {...loginForm.register("password")}
-                        placeholder="Digite sua senha"
-                        disabled={loginMutation.isPending}
-                      />
-                      {loginForm.formState.errors.password && (
-                        <p className="text-sm text-red-600">
-                          {loginForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Senha</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...loginForm.register("password")}
+                    placeholder="Digite sua senha"
+                    disabled={loginMutation.isPending}
+                  />
+                  {loginForm.formState.errors.password && (
+                    <p className="text-sm text-red-600">
+                      {loginForm.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
 
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={loginMutation.isPending}
-                    >
-                      {loginMutation.isPending && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Entrar
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                {/* Register Tab */}
-                <TabsContent value="register">
-                  <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="register-name">Nome Completo</Label>
-                      <Input
-                        id="register-name"
-                        {...registerForm.register("name")}
-                        placeholder="Digite seu nome completo"
-                        disabled={registerMutation.isPending}
-                      />
-                      {registerForm.formState.errors.name && (
-                        <p className="text-sm text-red-600">
-                          {registerForm.formState.errors.name.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="register-username">Usuário</Label>
-                      <Input
-                        id="register-username"
-                        {...registerForm.register("username")}
-                        placeholder="Escolha um nome de usuário"
-                        disabled={registerMutation.isPending}
-                      />
-                      {registerForm.formState.errors.username && (
-                        <p className="text-sm text-red-600">
-                          {registerForm.formState.errors.username.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="register-email">Email</Label>
-                      <Input
-                        id="register-email"
-                        type="email"
-                        {...registerForm.register("email")}
-                        placeholder="Digite seu email"
-                        disabled={registerMutation.isPending}
-                      />
-                      {registerForm.formState.errors.email && (
-                        <p className="text-sm text-red-600">
-                          {registerForm.formState.errors.email.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="register-password">Senha</Label>
-                      <Input
-                        id="register-password"
-                        type="password"
-                        {...registerForm.register("password")}
-                        placeholder="Escolha uma senha"
-                        disabled={registerMutation.isPending}
-                      />
-                      {registerForm.formState.errors.password && (
-                        <p className="text-sm text-red-600">
-                          {registerForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={registerMutation.isPending}
-                    >
-                      {registerMutation.isPending && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Criar Conta
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loginMutation.isPending}
+                >
+                  {loginMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Entrar
+                </Button>
+              </form>
             </CardContent>
           </Card>
 

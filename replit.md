@@ -91,13 +91,20 @@ This is a full-stack warehouse management system built with React, Express, and 
 - **Frontend**: Vite production build with asset optimization
 - **Backend**: esbuild bundling for Node.js deployment
 - **Static Assets**: Served from dist/public directory
-- **Database**: Neon serverless PostgreSQL with connection pooling
+- **Database**: External PostgreSQL (postgres://estruturas:1234@viajey_cassio:5432/almoxarifado)
 
-### Replit Configuration
-- **Modules**: Node.js 20, Web, PostgreSQL 16
-- **Auto-deployment**: Configured for autoscale deployment
-- **Environment**: SESSION_SECRET and DATABASE_URL required
-- **Build Process**: npm run build → npm run start
+### Docker Configuration
+- **Base Image**: Node.js 20 slim
+- **Port**: 5013 (configurable via PORT env var)
+- **Database**: PostgreSQL with automatic migration on startup
+- **Health Check**: Available at /health endpoint
+- **Environment**: Production-ready with proper database connection handling
+
+### Deployment
+- **Platform**: Docker containerization ready
+- **Database URL**: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+- **Build Process**: docker build → docker run
+- **Auto-migration**: Schema pushed automatically on container startup
 
 ## Changelog
 
@@ -112,8 +119,11 @@ Changelog:
   * Enhanced user management with email validation
   * Multi-tenant architecture with proper data isolation
 - June 25, 2025: Added professional authentication page with registration
-- June 25, 2025: Implemented third parties CRUD functionality
-- June 25, 2025: Ready for production deployment with provided database URL
+- June 25, 2025: Implemented third parties CRUD functionality  
+- June 25, 2025: Removed registration from auth page (only super admin can register users)
+- June 25, 2025: Created production Dockerfile with PostgreSQL integration
+- June 25, 2025: Added health check endpoint and production-ready configuration
+- June 25, 2025: Ready for deployment with external PostgreSQL database
 ```
 
 ## User Preferences
