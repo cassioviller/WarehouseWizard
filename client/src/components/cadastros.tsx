@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Edit, Trash2, Settings } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Material, Category, User, Employee, Supplier } from "@shared/schema";
+import type { Material, Category, User, Employee, Supplier, ThirdParty } from "@shared/schema";
+import ThirdParties from "./third-parties";
 import { useAuth } from "@/hooks/use-auth";
 
 type SubTab = 'materials' | 'categories' | 'employees' | 'suppliers' | 'third-parties' | 'users';

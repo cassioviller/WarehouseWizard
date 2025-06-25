@@ -7,7 +7,7 @@ import { storage } from "./storage";
 import { 
   insertCategorySchema, insertSupplierSchema, insertEmployeeSchema, 
   insertMaterialSchema, insertStockEntrySchema, insertStockExitSchema,
-  insertUserSchema
+  insertUserSchema, insertThirdPartySchema
 } from "@shared/schema";
 
 const scryptAsync = promisify(scrypt);
@@ -23,8 +23,118 @@ function getOwnerId(req: any): number {
   return req.user?.ownerId || req.user?.id || 1;
 }
 
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
+
+  // Users routes (for super admin)
+  app.get("/api/users", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+      
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
+  app.post("/api/users", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+
+      const userData = insertUserSchema.parse(req.body);
+      const hashedPassword = await hashPassword(userData.password);
+      
+      const newUser = await storage.createUser({
+        ...userData,
+        password: hashedPassword,
+      });
+      
+      res.status(201).json(newUser);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
+  // Third parties routes
+  app.get("/api/third-parties", requireAuth, async (req, res) => {
+    try {
+      const ownerId = getOwnerId(req);
+      const thirdParties = await storage.getThirdParties(ownerId);
+      res.json(thirdParties);
+    } catch (error) {
+      console.error("Error fetching third parties:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
+  app.post("/api/third-parties", requireAuth, async (req, res) => {
+    try {
+      const ownerId = getOwnerId(req);
+      const thirdPartyData = insertThirdPartySchema.parse(req.body);
+      
+      const thirdParty = await storage.createThirdParty({
+        ...thirdPartyData,
+        owner_id: ownerId,
+      });
+      
+      res.status(201).json(thirdParty);
+    } catch (error) {
+      console.error("Error creating third party:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
+  app.put("/api/third-parties/:id", requireAuth, async (req, res) => {
+    try {
+      const ownerId = getOwnerId(req);
+      const id = parseInt(req.params.id);
+      const thirdPartyData = insertThirdPartySchema.partial().parse(req.body);
+      
+      const thirdParty = await storage.updateThirdParty(id, thirdPartyData, ownerId);
+      
+      if (!thirdParty) {
+        return res.status(404).json({ error: "Terceiro não encontrado" });
+      }
+      
+      res.json(thirdParty);
+    } catch (error) {
+      console.error("Error updating third party:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
+  app.delete("/api/third-parties/:id", requireAuth, async (req, res) => {
+    try {
+      const ownerId = getOwnerId(req);
+      const id = parseInt(req.params.id);
+      
+      const success = await storage.deleteThirdParty(id, ownerId);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Terceiro não encontrado" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting third party:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
 
   // Categories
   app.get("/api/categories", requireAuth, async (req, res) => {

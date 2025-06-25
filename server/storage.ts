@@ -24,6 +24,12 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getAllUsers(): Promise<User[]>;
   
+  // Third party methods
+  getThirdParties(ownerId: number): Promise<ThirdParty[]>;
+  createThirdParty(thirdParty: InsertThirdParty): Promise<ThirdParty>;
+  updateThirdParty(id: number, thirdParty: Partial<InsertThirdParty>, ownerId: number): Promise<ThirdParty | undefined>;
+  deleteThirdParty(id: number, ownerId: number): Promise<boolean>;
+  
   // Category methods
   getCategories(ownerId: number): Promise<Category[]>;
   createCategory(category: InsertCategory): Promise<Category>;
@@ -376,6 +382,32 @@ export class DatabaseStorage implements IStorage {
       exitsToday: exitsToday.count,
       criticalItems: criticalItems.count,
     };
+  }
+
+  async getThirdParties(ownerId: number): Promise<ThirdParty[]> {
+    const result = await db.select().from(thirdParties).where(eq(thirdParties.owner_id, ownerId));
+    return result;
+  }
+
+  async createThirdParty(thirdParty: InsertThirdParty): Promise<ThirdParty> {
+    const [result] = await db.insert(thirdParties).values(thirdParty).returning();
+    return result;
+  }
+
+  async updateThirdParty(id: number, thirdParty: Partial<InsertThirdParty>, ownerId: number): Promise<ThirdParty | undefined> {
+    const [result] = await db
+      .update(thirdParties)
+      .set(thirdParty)
+      .where(and(eq(thirdParties.id, id), eq(thirdParties.owner_id, ownerId)))
+      .returning();
+    return result;
+  }
+
+  async deleteThirdParty(id: number, ownerId: number): Promise<boolean> {
+    const result = await db
+      .delete(thirdParties)
+      .where(and(eq(thirdParties.id, id), eq(thirdParties.owner_id, ownerId)));
+    return result.rowCount > 0;
   }
 
   async getFinancialReport(ownerId: number): Promise<{

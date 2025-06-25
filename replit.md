@@ -103,7 +103,17 @@ This is a full-stack warehouse management system built with React, Express, and 
 
 ```
 Changelog:
-- June 25, 2025. Initial setup
+- June 25, 2025: Initial setup and basic authentication
+- June 25, 2025: Fixed login issues for teste2/teste2 user
+- June 25, 2025: Implemented comprehensive warehouse schema with:
+  * Third parties management (companies, contractors)
+  * Material movements tracking (unified entry/exit system)
+  * Audit logs for complete traceability
+  * Enhanced user management with email validation
+  * Multi-tenant architecture with proper data isolation
+- June 25, 2025: Added professional authentication page with registration
+- June 25, 2025: Implemented third parties CRUD functionality
+- June 25, 2025: Ready for production deployment with provided database URL
 ```
 
 ## User Preferences

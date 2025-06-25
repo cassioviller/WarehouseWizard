@@ -1,5 +1,6 @@
 -- Setup script for production database
 -- Connection: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+-- Updated schema with comprehensive warehouse management features
 
 -- Create database if it doesn't exist
 CREATE DATABASE IF NOT EXISTS almoxarifado;
