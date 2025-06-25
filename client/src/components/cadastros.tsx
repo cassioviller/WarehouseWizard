@@ -366,8 +366,10 @@ export default function Cadastros() {
           </div>
         )}
 
+        {activeSubTab === 'third-parties' && <ThirdParties />}
+
         {/* Other tabs placeholders */}
-        {activeSubTab !== 'materials' && activeSubTab !== 'users' && (
+        {!['materials', 'users', 'third-parties'].includes(activeSubTab) && (
           <div className="p-6 text-center py-12">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Settings className="text-gray-400 text-2xl" />

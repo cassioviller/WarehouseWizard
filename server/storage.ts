@@ -1,11 +1,11 @@
 import { 
-  users, categories, suppliers, employees, materials, 
+  users, categories, suppliers, employees, materials, thirdParties,
   stockEntries, stockEntryItems, stockExits, stockExitItems,
   type User, type InsertUser, type Category, type InsertCategory,
   type Supplier, type InsertSupplier, type Employee, type InsertEmployee,
   type Material, type InsertMaterial, type StockEntry, type InsertStockEntry,
   type StockEntryItem, type InsertStockEntryItem, type StockExit, type InsertStockExit,
-  type StockExitItem, type InsertStockExitItem
+  type StockExitItem, type InsertStockExitItem, type ThirdParty, type InsertThirdParty
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
