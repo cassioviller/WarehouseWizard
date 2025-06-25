@@ -8,11 +8,21 @@ import { ProtectedRoute } from "./lib/protected-route";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import NotFound from "@/pages/not-found";
+import SuperAdminPage from "@/pages/super-admin-page";
 
 function Router() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute 
+        path="/" 
+        component={(props) => {
+          const { user } = props;
+          if (user?.role === 'super_admin') {
+            return <SuperAdminPage />;
+          }
+          return <HomePage />;
+        }} 
+      />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>

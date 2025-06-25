@@ -240,7 +240,10 @@ export function registerRoutes(app: Express): Server {
       if (user.role !== 'super_admin') {
         return res.status(403).json({ error: "Access denied" });
       }
-      const userData = insertUserSchema.parse(req.body);
+      const userData = insertUserSchema.parse({
+        ...req.body,
+        ownerId: 1
+      });
       const newUser = await storage.createUser(userData);
       res.status(201).json(newUser);
     } catch (error) {
