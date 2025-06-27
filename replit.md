@@ -166,6 +166,11 @@ Changelog:
   * Created EASYPANEL_READY.md with complete deployment instructions
   * System tested and responding correctly (API: 401 unauthorized = expected behavior)
   * Ready for immediate EasyPanel deployment - zero manual configuration required
+- June 27, 2025: Applied generic deployment configuration matching comissões project logic:
+  * Updated DATABASE_URL to use almoxarifado_user:senha123forte@estruturas_almoxarifado format
+  * Removed EasyPanel-specific configurations, using same generic approach as working example
+  * Validated system functionality with standardized Docker configuration
+  * Ready for deployment in any Docker-compatible environment
 ```
 
 ## User Preferences

@@ -14,7 +14,7 @@ if [ -z "$DATABASE_URL" ]; then
 fi
 
 # Checagem rápida para abortar se a URL ainda apontar para banco errado
-if echo "$DATABASE_URL" | grep -q "://estruturas_comissoes:"; then
+if echo "$DATABASE_URL" | grep -q "://estruturas_almoxarifado:"; then
   echo "❌ ERRO: DATABASE_URL contém banco incorreto ('estruturas')"
   exit 1
 fi

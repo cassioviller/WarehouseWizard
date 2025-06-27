@@ -9,7 +9,7 @@
 **1. .env**
 ```
 NODE_ENV=production
-DATABASE_URL=postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+DATABASE_URL=postgres://almoxarifado_user:senha123forte@estruturas_almoxarifado:5432/almoxarifado?sslmode=disable
 PORT=5000
 ```
 
