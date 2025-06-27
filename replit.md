@@ -23,7 +23,8 @@ This is a full-stack warehouse management system built with React, Express, and 
 - **API Design**: RESTful endpoints with proper error handling
 
 ### Database Design
-- **Primary Database**: PostgreSQL (native pg driver for EasyPanel deployment)
+- **Primary Database**: PostgreSQL with flexible SSL auto-detection
+- **Connection**: Pool-based with automatic SSL detection via URL analysis
 - **Schema Management**: Drizzle Kit for migrations and schema management
 - **Multi-tenancy**: Owner-based data isolation using `owner_id` field
 - **Core Entities**: Users, Categories, Suppliers, Employees, Materials, Stock Entries/Exits
@@ -146,6 +147,12 @@ Changelog:
   * Added /health endpoint with real database connection testing for monitoring
   * Applied all security recommendations: --chown=node:node, USER node, .dockerignore protection
   * Build optimized to 43.9kb with full production readiness and zero manual configuration required
+- June 27, 2025: Simplified PostgreSQL configuration based on working example from another project:
+  * Replaced complex connection logic with flexible Pool-based approach using native pg driver
+  * Implemented automatic SSL detection based on DATABASE_URL content (sslmode=require)
+  * Created simplified Dockerfile and docker-compose.yml for easier deployment
+  * Added support for multiple environments: Replit (SSL), EasyPanel (no SSL), Docker (local)
+  * System now auto-detects connection requirements without manual configuration
 ```
 
 ## User Preferences
