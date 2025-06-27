@@ -1,45 +1,28 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+  throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
 }
 
-export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  // Sem SSL para PostgreSQL local no EasyPanel
+// Conexão flexível que funciona tanto em desenvolvimento quanto produção
+const queryClient = postgres(process.env.DATABASE_URL, {
+  ssl: process.env.DATABASE_URL.includes('sslmode=require'),
   max: 10,
-  idleTimeoutMillis: 15000,
-  connectionTimeoutMillis: 10000,
+  connect_timeout: 10,
+  idle_timeout: 30
 });
 
-export const db = drizzle(pool, { schema });
+export const db = drizzle(queryClient, { schema });
 
 export async function testConnection() {
   try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT current_database() as database_name');
-    console.log('Conectado ao banco de dados:', result.rows[0].database_name);
-    client.release();
+    const result = await queryClient`SELECT current_database() as db_name, current_user as user_name`;
+    console.log('Database connection successful:', result[0]);
     return true;
   } catch (error) {
-    console.error('Erro ao conectar ao banco de dados:', error);
+    console.error('Database connection failed:', error);
     return false;
   }
 }
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('Fechando pool de conexões...');
-  await pool.end();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Fechando pool de conexões...');
-  await pool.end();
-  process.exit(0);
-});

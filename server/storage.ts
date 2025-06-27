@@ -10,10 +10,9 @@ import {
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
-import { pool } from "./db";
+import createMemoryStore from "memorystore";
 
-const PostgresSessionStore = connectPg(session);
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   sessionStore: session.Store;

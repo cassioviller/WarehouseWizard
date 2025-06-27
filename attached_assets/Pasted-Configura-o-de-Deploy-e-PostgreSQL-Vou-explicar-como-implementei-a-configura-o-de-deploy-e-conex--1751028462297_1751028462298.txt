@@ -1,0 +1,98 @@
+Configuração de Deploy e PostgreSQL
+Vou explicar como implementei a configuração de deploy e conexão com PostgreSQL para desenvolvimento e produção:
+
+1. Configuração do Banco de Dados
+Arquivo server/db.ts:
+
+// Conexão flexível que funciona tanto em desenvolvimento quanto produção
+const queryClient = postgres(process.env.DATABASE_URL, {
+  ssl: process.env.DATABASE_URL.includes('sslmode=require'),
+  max: 10,
+  connect_timeout: 10,
+  idle_timeout: 30
+});
+Detecção automática de SSL: O sistema detecta se precisa de SSL baseado na URL do banco.
+
+2. Configuração de Ambientes
+Desenvolvimento (Replit):
+
+Usa o PostgreSQL integrado do Replit
+URL: postgresql://neondb_owner:***@ep-patient-rice-a64fntal.us-west-2.aws.neon.tech/neondb?sslmode=require
+SSL habilitado automaticamente
+Produção Local (Docker):
+
+# docker-compose.yml
+estruturas_comissoes:
+  image: postgres:15
+  environment:
+    - POSTGRES_USER=comissoes_user
+    - POSTGRES_PASSWORD=senha123forte
+    - POSTGRES_DB=comissoes
+3. Opções de Deploy
+A. Deploy com Docker Compose:
+
+docker-compose up -d
+B. Deploy com EasyPanel:
+
+Configuração em easypanel.config.json
+PostgreSQL como dependência gerenciada
+Healthcheck automático
+4. Migração de Esquema Automática
+Arquivo server/storage.ts:
+
+// Criação automática de tabelas se não existirem
+async getServicos(): Promise<string[]> {
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS servicos (
+      id SERIAL PRIMARY KEY,
+      nome TEXT NOT NULL UNIQUE,
+      unidade_padrao TEXT NOT NULL DEFAULT 'kg',
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+}
+5. Para Replicar em Outro Projeto
+Passos:
+
+Copie os arquivos de configuração:
+
+server/db.ts
+docker-compose.yml
+Dockerfile
+easypanel.config.json
+.env.example
+Configure as variáveis de ambiente:
+
+DATABASE_URL=sua_url_do_postgres
+NODE_ENV=development_ou_production
+PORT=5000
+Instale as dependências:
+
+npm install postgres drizzle-orm
+Configure o Drizzle:
+
+// drizzle.config.ts
+export default {
+  schema: "./shared/schema.ts",
+  out: "./drizzle",
+  driver: "pg",
+  dbCredentials: {
+    connectionString: process.env.DATABASE_URL!,
+  },
+};
+6. Vantagens desta Abordagem
+Flexibilidade: Funciona em qualquer ambiente
+Robustez: Tratamento de erros e reconexão automática
+Migração Automática: Cria tabelas conforme necessário
+Logs Detalhados: Facilita debug em produção
+Sincronização: Mantém dados consistentes entre memória e banco
+7. Comandos Úteis
+# Desenvolvimento
+npm run dev
+# Build para produção
+npm run build
+# Deploy com Docker
+docker-compose up -d
+# Verificar logs
+docker-compose logs -f app
+Esta configuração garante que o sistema funcione tanto no Replit (desenvolvimento) quanto em qualquer servidor de produção com PostgreSQL.
