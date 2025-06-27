@@ -135,6 +135,11 @@ Changelog:
   * Cleaned docker-entrypoint.sh (removed unset PG* commands)
   * Validated API functionality - no more "database does not exist" errors
   * System ready for EasyPanel deployment with postgres://estruturas:1234@viajey_cassio:5432/almoxarifado
+- June 27, 2025: Applied definitive EasyPanel fallback fixes based on container logs:
+  * Completely removed DATABASE_URL fallback from Dockerfile to prevent "estruturas" database connection
+  * Added smart validation in docker-entrypoint.sh to detect incorrect database configuration
+  * Container now requires DATABASE_URL to be set externally via EasyPanel environment variables
+  * Eliminated "container falling back" issue that caused FATAL database errors in production logs
 ```
 
 ## User Preferences

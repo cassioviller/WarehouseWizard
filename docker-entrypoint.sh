@@ -8,6 +8,14 @@ echo ">>> Iniciando script de entrada da Aplicação no Replit <<<"
 : "${NODE_ENV:?Variável NODE_ENV não está configurada}"
 : "${PORT:?Variável PORT não está configurada}"
 
+# 1.1 Verificar se DATABASE_URL não contém banco incorreto
+if echo "$DATABASE_URL" | grep -q "://estruturas:" && echo "$DATABASE_URL" | grep -q "/estruturas"; then
+  echo "🚨 ERRO: DATABASE_URL contém o nome de banco incorreto ('estruturas')."
+  echo "   Deve ser: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable"
+  echo "   Configure a variável DATABASE_URL corretamente no EasyPanel."
+  exit 1
+fi
+
 echo "Configurações detectadas:"
 echo "NODE_ENV: $NODE_ENV"
 echo "PORT: $PORT"

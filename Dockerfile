@@ -29,7 +29,10 @@ RUN npm run build
 # Expose the port the app runs on
 EXPOSE 5013
 
-
+# Set default environment variables (DATABASE_URL deve vir do EasyPanel)
+ENV NODE_ENV=${NODE_ENV:-production}
+ENV PORT=${PORT:-5013}
+ENV SESSION_SECRET=${SESSION_SECRET:-almoxarifado-secret-2024}
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \

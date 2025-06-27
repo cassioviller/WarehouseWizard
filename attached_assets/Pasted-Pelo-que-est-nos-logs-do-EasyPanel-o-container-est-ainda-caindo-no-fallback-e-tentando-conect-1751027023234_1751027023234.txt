@@ -1,0 +1,83 @@
+Pelo que está nos logs do EasyPanel, o container está ainda “caindo” no *fallback* e tentando conectar (sem variável externa) ao banco chamado **estruturas**, que não existe. Para resolver de vez:
+
+---
+
+## 1. Defina a variável `DATABASE_URL` no EasyPanel (não confie no fallback)
+
+1. Abra seu projeto no EasyPanel.
+
+2. Selecione o serviço da sua API (`viajey/almo` ou similar).
+
+3. Vá em **Environment** (ou **Variáveis de Ambiente**).
+
+4. Adicione **exatamente** esta chave e valor:
+
+   ```
+   DATABASE_URL=postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+   ```
+
+5. Salve e **redeploy** o serviço.
+
+> Ao fazer isso, o Docker já não vai usar o valor padrão do `Dockerfile` (que aponta para “estruturas”) e sim a URL que você acabou de injetar.
+
+---
+
+## 2. Remova o fallback do Dockerfile (boas práticas)
+
+Para evitar confusões futuras, abra o `Dockerfile` e **delete** ou comente esta linha:
+
+```dockerfile
+ENV DATABASE_URL=${DATABASE_URL:-postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable}
+```
+
+Deixe apenas:
+
+```dockerfile
+# (não há ENV DATABASE_URL aqui — as variáveis virão do painel)
+ENV NODE_ENV=${NODE_ENV:-production}
+ENV PORT=${PORT:-5013}
+ENV SESSION_SECRET=${SESSION_SECRET:-almoxarifado-secret-2024}
+```
+
+Assim o serviço **sempre exigirá** que a URL seja provisionada externamente, e não cairá em um valor interno errado.
+
+---
+
+## 3. Validar no log
+
+Depois do redeploy, abra os logs da aplicação:
+
+* Você deve ver no início do entrypoint algo como:
+
+  ```
+  DATABASE_URL: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+  PostgreSQL está pronto!
+  Banco de dados conectado com sucesso!
+  ```
+
+* E **não** mais nenhuma linha “FATAL: database ‘estruturas’ does not exist”.
+
+---
+
+## 4. (Opcional) Fortaleça o entrypoint
+
+No `docker-entrypoint.sh`, logo após a validação de `DATABASE_URL`, você pode forçar uma falha caso o valor contenha “estruturas”:
+
+```bash
+if echo "$DATABASE_URL" | grep -q "://estruturas:"; then
+  echo "🚨 O DATABASE_URL contém o nome de banco errado (‘estruturas’)."
+  exit 1
+fi
+```
+
+Assim, em vez de tentar a conexão e gerar dezenas de `FATAL` no log do Postgres, o container falha rápido e avisa “nome de banco errado”.
+
+---
+
+Seguindo esses três passos, você garante que:
+
+1. **A variável chega de fato** no container via EasyPanel.
+2. **Não há mais fallback** que a sobrescreva.
+3. **Os logs ficam limpos**, conectando somente ao banco correto `almoxarifado`.
+
+Depois, é só redeployar e testar novamente o fluxo de login/CRUD para confirmar que agora a API funciona sem “database does not exist”.
