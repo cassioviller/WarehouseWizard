@@ -58,14 +58,29 @@ export function registerRoutes(app: Express): Server {
         return res.status(403).json({ error: "Acesso negado" });
       }
 
-      const userData = insertUserSchema.parse(req.body);
+      console.log("[USERS] Dados recebidos:", req.body);
+      
+      // Validar apenas os campos necessários
+      const userData = {
+        username: req.body.username,
+        password: req.body.password,
+        name: req.body.name,
+        role: req.body.role || 'user'
+      };
+
+      if (!userData.username || !userData.password || !userData.name) {
+        return res.status(400).json({ error: "Campos obrigatórios: username, password, name" });
+      }
+
       const hashedPassword = await hashPassword(userData.password);
       
       const newUser = await storage.createUser({
         ...userData,
         password: hashedPassword,
+        owner_id: 1,
       });
       
+      console.log("[USERS] Usuário criado:", newUser.username);
       res.status(201).json(newUser);
     } catch (error) {
       console.error("Error creating user:", error);
