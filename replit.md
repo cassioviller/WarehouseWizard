@@ -171,6 +171,11 @@ Changelog:
   * Removed EasyPanel-specific configurations, using same generic approach as working example
   * Validated system functionality with standardized Docker configuration
   * Ready for deployment in any Docker-compatible environment
+- June 27, 2025: Final configuration with user's specific database credentials:
+  * Applied exact DATABASE_URL: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+  * Updated all configuration files (.env, Dockerfile, docker-compose.yml) with correct credentials
+  * Maintained same logic structure as working comissões project
+  * System validated and ready for deployment with user's specified database
 ```
 
 ## User Preferences

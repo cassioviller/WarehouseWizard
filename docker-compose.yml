@@ -6,7 +6,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_URL=postgres://almoxarifado_user:senha123forte@db:5432/almoxarifado
+      - DATABASE_URL=postgres://estruturas:1234@db:5432/almoxarifado?sslmode=disable
       - NODE_ENV=production
       - PORT=5000
       - SESSION_SECRET=almoxarifado-secret-2024
@@ -17,8 +17,8 @@ services:
   db:
     image: postgres:15
     environment:
-      - POSTGRES_USER=almoxarifado_user
-      - POSTGRES_PASSWORD=senha123forte
+      - POSTGRES_USER=estruturas
+      - POSTGRES_PASSWORD=1234
       - POSTGRES_DB=almoxarifado
     volumes:
       - postgres_data:/var/lib/postgresql/data
