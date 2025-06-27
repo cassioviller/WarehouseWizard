@@ -88,7 +88,7 @@ export class DatabaseStorage implements IStorage {
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 
-      pool, 
+      pool: pool as any, 
       createTableIfMissing: true 
     });
   }
@@ -130,7 +130,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCategories(ownerId: number): Promise<Category[]> {
-    return await db.select().from(categories).where(eq(categories.ownerId, ownerId));
+    return await db.select().from(categories).where(eq(categories.owner_id, ownerId));
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
@@ -153,12 +153,12 @@ export class DatabaseStorage implements IStorage {
   async deleteCategory(id: number, ownerId: number): Promise<boolean> {
     const result = await db
       .delete(categories)
-      .where(and(eq(categories.id, id), eq(categories.ownerId, ownerId)));
+      .where(and(eq(categories.id, id), eq(categories.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
   async getSuppliers(ownerId: number): Promise<Supplier[]> {
-    return await db.select().from(suppliers).where(eq(suppliers.ownerId, ownerId));
+    return await db.select().from(suppliers).where(eq(suppliers.owner_id, ownerId));
   }
 
   async createSupplier(supplier: InsertSupplier): Promise<Supplier> {
@@ -181,7 +181,7 @@ export class DatabaseStorage implements IStorage {
   async deleteSupplier(id: number, ownerId: number): Promise<boolean> {
     const result = await db
       .delete(suppliers)
-      .where(and(eq(suppliers.id, id), eq(suppliers.ownerId, ownerId)));
+      .where(and(eq(suppliers.id, id), eq(suppliers.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
