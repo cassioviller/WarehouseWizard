@@ -88,6 +88,70 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Update user route
+  app.put("/api/users/:id", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+
+      const id = parseInt(req.params.id);
+      const userData = {
+        username: req.body.username,
+        name: req.body.name,
+        role: req.body.role || 'user'
+      };
+
+      // Only hash password if provided
+      if (req.body.password) {
+        const hashedPassword = await hashPassword(req.body.password);
+        userData.password = hashedPassword;
+      }
+
+      const updatedUser = await storage.updateUser(id, userData);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      console.log("[USERS] Usuário atualizado:", updatedUser.username);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
+  // Delete user route
+  app.delete("/api/users/:id", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as any;
+      if (user.role !== 'super_admin') {
+        return res.status(403).json({ error: "Acesso negado" });
+      }
+
+      const id = parseInt(req.params.id);
+      
+      // Prevent deleting super admin
+      if (id === 1) {
+        return res.status(400).json({ error: "Não é possível excluir o super administrador" });
+      }
+
+      const success = await storage.deleteUser(id);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      console.log("[USERS] Usuário excluído com ID:", id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  });
+
   // Third parties routes
   app.get("/api/third-parties", requireAuth, async (req, res) => {
     try {
