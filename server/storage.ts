@@ -145,7 +145,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(categories)
       .set(category)
-      .where(and(eq(categories.id, id), eq(categories.ownerId, ownerId)))
+      .where(and(eq(categories.id, id), eq(categories.owner_id, ownerId)))
       .returning();
     return updated || undefined;
   }
@@ -173,7 +173,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(suppliers)
       .set(supplier)
-      .where(and(eq(suppliers.id, id), eq(suppliers.ownerId, ownerId)))
+      .where(and(eq(suppliers.id, id), eq(suppliers.owner_id, ownerId)))
       .returning();
     return updated || undefined;
   }
@@ -186,7 +186,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getEmployees(ownerId: number): Promise<Employee[]> {
-    return await db.select().from(employees).where(eq(employees.ownerId, ownerId));
+    return await db.select().from(employees).where(eq(employees.owner_id, ownerId));
   }
 
   async createEmployee(employee: InsertEmployee): Promise<Employee> {
@@ -201,7 +201,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(employees)
       .set(employee)
-      .where(and(eq(employees.id, id), eq(employees.ownerId, ownerId)))
+      .where(and(eq(employees.id, id), eq(employees.owner_id, ownerId)))
       .returning();
     return updated || undefined;
   }
@@ -209,12 +209,12 @@ export class DatabaseStorage implements IStorage {
   async deleteEmployee(id: number, ownerId: number): Promise<boolean> {
     const result = await db
       .delete(employees)
-      .where(and(eq(employees.id, id), eq(employees.ownerId, ownerId)));
+      .where(and(eq(employees.id, id), eq(employees.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
   async getMaterials(ownerId: number): Promise<Material[]> {
-    return await db.select().from(materials).where(eq(materials.ownerId, ownerId));
+    return await db.select().from(materials).where(eq(materials.owner_id, ownerId));
   }
 
   async getMaterialsWithCategory(ownerId: number): Promise<(Material & { category: Category | null })[]> {
@@ -223,18 +223,18 @@ export class DatabaseStorage implements IStorage {
         id: materials.id,
         name: materials.name,
         description: materials.description,
-        categoryId: materials.categoryId,
+        categoryId: materials.category_id,
         unit: materials.unit,
-        minimumStock: materials.minimumStock,
-        currentStock: materials.currentStock,
-        unitPrice: materials.unitPrice,
-        ownerId: materials.ownerId,
-        createdAt: materials.createdAt,
+        minimumStock: materials.minimum_stock,
+        currentStock: materials.current_stock,
+        unitPrice: materials.unit_price,
+        ownerId: materials.owner_id,
+        createdAt: materials.created_at,
         category: categories,
       })
       .from(materials)
-      .leftJoin(categories, eq(materials.categoryId, categories.id))
-      .where(eq(materials.ownerId, ownerId));
+      .leftJoin(categories, eq(materials.category_id, categories.id))
+      .where(eq(materials.owner_id, ownerId));
     
     return result as (Material & { category: Category | null })[];
   }
@@ -251,7 +251,7 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(materials)
       .set(material)
-      .where(and(eq(materials.id, id), eq(materials.ownerId, ownerId)))
+      .where(and(eq(materials.id, id), eq(materials.owner_id, ownerId)))
       .returning();
     return updated || undefined;
   }
@@ -259,7 +259,7 @@ export class DatabaseStorage implements IStorage {
   async deleteMaterial(id: number, ownerId: number): Promise<boolean> {
     const result = await db
       .delete(materials)
-      .where(and(eq(materials.id, id), eq(materials.ownerId, ownerId)));
+      .where(and(eq(materials.id, id), eq(materials.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
@@ -268,9 +268,9 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(materials)
       .set({
-        currentStock: sql`${materials.currentStock} + ${increment}`
+        currentStock: sql`${materials.current_stock} + ${increment}`
       })
-      .where(and(eq(materials.id, materialId), eq(materials.ownerId, ownerId)));
+      .where(and(eq(materials.id, materialId), eq(materials.owner_id, ownerId)));
   }
 
   async getStockEntries(ownerId: number): Promise<(StockEntry & { supplier: Supplier | null, employee: Employee | null })[]> {
@@ -279,18 +279,18 @@ export class DatabaseStorage implements IStorage {
         id: stockEntries.id,
         date: stockEntries.date,
         origin: stockEntries.origin,
-        supplierId: stockEntries.supplierId,
-        employeeId: stockEntries.employeeId,
+        supplierId: stockEntries.supplier_id,
+        employeeId: stockEntries.employee_id,
         notes: stockEntries.notes,
-        ownerId: stockEntries.ownerId,
-        createdAt: stockEntries.createdAt,
+        ownerId: stockEntries.owner_id,
+        createdAt: stockEntries.created_at,
         supplier: suppliers,
         employee: employees,
       })
       .from(stockEntries)
-      .leftJoin(suppliers, eq(stockEntries.supplierId, suppliers.id))
-      .leftJoin(employees, eq(stockEntries.employeeId, employees.id))
-      .where(eq(stockEntries.ownerId, ownerId))
+      .leftJoin(suppliers, eq(stockEntries.supplier_id, suppliers.id))
+      .leftJoin(employees, eq(stockEntries.employee_id, employees.id))
+      .where(eq(stockEntries.owner_id, ownerId))
       .orderBy(desc(stockEntries.date));
     
     return result as (StockEntry & { supplier: Supplier | null, employee: Employee | null })[];
@@ -309,7 +309,7 @@ export class DatabaseStorage implements IStorage {
       });
 
       // Update material stock
-      await this.updateMaterialStock(item.materialId!, item.quantity, 'add', entry.ownerId);
+      await this.updateMaterialStock(item.materialId!, item.quantity, 'add', entry.owner_id);
     }
 
     return newEntry;
@@ -321,15 +321,15 @@ export class DatabaseStorage implements IStorage {
         id: stockExits.id,
         date: stockExits.date,
         destination: stockExits.destination,
-        employeeId: stockExits.employeeId,
+        employeeId: stockExits.employee_id,
         notes: stockExits.notes,
-        ownerId: stockExits.ownerId,
-        createdAt: stockExits.createdAt,
+        ownerId: stockExits.owner_id,
+        createdAt: stockExits.created_at,
         employee: employees,
       })
       .from(stockExits)
-      .leftJoin(employees, eq(stockExits.employeeId, employees.id))
-      .where(eq(stockExits.ownerId, ownerId))
+      .leftJoin(employees, eq(stockExits.employee_id, employees.id))
+      .where(eq(stockExits.owner_id, ownerId))
       .orderBy(desc(stockExits.date));
     
     return result as (StockExit & { employee: Employee | null })[];
@@ -348,7 +348,7 @@ export class DatabaseStorage implements IStorage {
       });
 
       // Update material stock
-      await this.updateMaterialStock(item.materialId!, item.quantity, 'subtract', exit.ownerId);
+      await this.updateMaterialStock(item.materialId!, item.quantity, 'subtract', exit.owner_id);
     }
 
     return newExit;
@@ -366,13 +366,13 @@ export class DatabaseStorage implements IStorage {
     const [totalMaterials] = await db
       .select({ count: sql<number>`count(*)` })
       .from(materials)
-      .where(eq(materials.ownerId, ownerId));
+      .where(eq(materials.owner_id, ownerId));
 
     const [entriesToday] = await db
       .select({ count: sql<number>`count(*)` })
       .from(stockEntries)
       .where(and(
-        eq(stockEntries.ownerId, ownerId),
+        eq(stockEntries.owner_id, ownerId),
         sql`${stockEntries.date} >= ${today}`
       ));
 
@@ -380,7 +380,7 @@ export class DatabaseStorage implements IStorage {
       .select({ count: sql<number>`count(*)` })
       .from(stockExits)
       .where(and(
-        eq(stockExits.ownerId, ownerId),
+        eq(stockExits.owner_id, ownerId),
         sql`${stockExits.date} >= ${today}`
       ));
 
@@ -388,8 +388,8 @@ export class DatabaseStorage implements IStorage {
       .select({ count: sql<number>`count(*)` })
       .from(materials)
       .where(and(
-        eq(materials.ownerId, ownerId),
-        sql`${materials.currentStock} <= ${materials.minimumStock}`
+        eq(materials.owner_id, ownerId),
+        sql`${materials.current_stock} <= ${materials.minimum_stock}`
       ));
 
     return {
@@ -436,7 +436,7 @@ export class DatabaseStorage implements IStorage {
     
     const stockItems = materialsWithCategory.map(material => ({
       ...material,
-      totalValue: parseFloat(material.unitPrice || '0') * (material.currentStock || 0)
+      totalValue: parseFloat(material.unit_price || '0') * (material.current_stock || 0)
     }));
 
     const totalStockValue = stockItems.reduce((sum, item) => sum + item.totalValue, 0);
