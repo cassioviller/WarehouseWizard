@@ -32,6 +32,26 @@ async function hashPassword(password: string) {
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
 
+  // Health check endpoint (required for Docker healthcheck)
+  app.get("/health", async (req, res) => {
+    try {
+      // Test database connection with simple query
+      await storage.getDashboardMetrics(1);
+      res.status(200).json({ 
+        status: "healthy", 
+        database: "connected",
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(503).json({ 
+        status: "unhealthy", 
+        database: "disconnected",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Users routes (for super admin)
   app.get("/api/users", requireAuth, async (req, res) => {
     try {
