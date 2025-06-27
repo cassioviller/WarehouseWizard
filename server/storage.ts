@@ -7,7 +7,7 @@ import {
   type StockEntryItem, type InsertStockEntryItem, type StockExit, type InsertStockExit,
   type StockExitItem, type InsertStockExitItem, type ThirdParty, type InsertThirdParty
 } from "@shared/schema";
-import { db, pool } from "./db";
+import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";

@@ -2,21 +2,29 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Instalar ferramentas necessárias (inclui postgresql-client para scripts de inicialização)
+RUN apt-get update && apt-get install -y postgresql-client wget curl && rm -rf /var/lib/apt/lists/*
+
+# Copiar arquivos de dependências
 COPY package*.json ./
+
+# Instalar dependências
 RUN npm ci
 
-# Copy application code
+# Copiar o restante dos arquivos do projeto
 COPY . .
 
-# Build application
+# Tornar o script de entrada executável
+RUN chmod +x docker-entrypoint.sh
+
+# Executar o build da aplicação
 RUN npm run build
 
-# Expose port
+# Expor a porta utilizada pelo aplicativo
 EXPOSE 5000
 
-# Set environment
-ENV NODE_ENV=production
+# Usar o script de entrada para inicialização
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
-# Start application
+# Comando para iniciar a aplicação após o script de entrada
 CMD ["npm", "run", "start"]
