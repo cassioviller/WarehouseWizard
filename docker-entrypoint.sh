@@ -14,17 +14,6 @@ echo "PORT: $PORT"
 echo "DATABASE_URL: [CONFIGURADA]"
 
 # 2. Extrair Informações de Conexão da DATABASE_URL
-# Desdefinir variáveis PG* e POSTGRES_* para evitar conflitos com a DATABASE_URL
-unset PGDATABASE
-unset PGUSER
-unset PGPASSWORD
-unset PGHOST
-unset PGPORT
-unset POSTGRES_DB
-unset POSTGRES_USER
-unset POSTGRES_PASSWORD
-unset POSTGRES_HOST
-unset POSTGRES_PORT
 
 # Extrair componentes da DATABASE_URL para pg_isready e psql
 PGHOST=$(echo $DATABASE_URL | sed -E 's/^.*@([^:]+):.*/\1/' 2>/dev/null || echo "localhost")
