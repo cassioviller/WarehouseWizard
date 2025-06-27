@@ -56,7 +56,7 @@ export interface IStorage {
   createMaterial(material: InsertMaterial): Promise<Material>;
   updateMaterial(id: number, material: Partial<InsertMaterial>, ownerId: number): Promise<Material | undefined>;
   deleteMaterial(id: number, ownerId: number): Promise<boolean>;
-  updateMaterialStock(materialId: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void>;
+  updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void>;
   
   // Stock Entry methods
   getStockEntries(ownerId: number): Promise<(StockEntry & { supplier: Supplier | null, employee: Employee | null })[]>;
@@ -226,7 +226,7 @@ export class DatabaseStorage implements IStorage {
         categoryId: materials.category_id,
         unit: materials.unit,
         minimumStock: materials.minimum_stock,
-        currentStock: materials.current_stock,
+        current_stock: materials.current_stock,
         unitPrice: materials.unit_price,
         ownerId: materials.owner_id,
         createdAt: materials.created_at,
@@ -263,12 +263,12 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
-  async updateMaterialStock(materialId: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void> {
+  async updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void> {
     const increment = operation === 'add' ? quantity : -quantity;
     await db
       .update(materials)
       .set({
-        currentStock: sql`${materials.current_stock} + ${increment}`
+        current_stock: sql`${materials.current_stock} + ${increment}`
       })
       .where(and(eq(materials.id, materialId), eq(materials.owner_id, ownerId)));
   }
@@ -277,13 +277,12 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({
         id: stockEntries.id,
-        date: stockEntries.date,
-        origin: stockEntries.origin,
-        supplierId: stockEntries.supplier_id,
-        employeeId: stockEntries.employee_id,
         notes: stockEntries.notes,
-        ownerId: stockEntries.owner_id,
-        createdAt: stockEntries.created_at,
+        supplier_id: stockEntries.supplier_id,
+        employee_id: stockEntries.employee_id,
+        total_value: stockEntries.total_value,
+        owner_id: stockEntries.owner_id,
+        created_at: stockEntries.created_at,
         supplier: suppliers,
         employee: employees,
       })
@@ -344,7 +343,7 @@ export class DatabaseStorage implements IStorage {
     for (const item of items) {
       await db.insert(stockExitItems).values({
         ...item,
-        exitId: newExit.id,
+        stock_exit_id: newExit.id,
       });
 
       // Update material stock
