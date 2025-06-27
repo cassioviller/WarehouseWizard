@@ -56,13 +56,26 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
+        console.log(`[AUTH] Tentativa de login para usuário: ${username}`);
         const user = await storage.getUserByUsername(username);
-        if (!user || !(await comparePasswords(password, user.password))) {
+        
+        if (!user) {
+          console.log(`[AUTH] Usuário ${username} não encontrado`);
           return done(null, false);
-        } else {
-          return done(null, user);
         }
+        
+        console.log(`[AUTH] Usuário encontrado: ${user.username}, verificando senha...`);
+        const passwordMatch = await comparePasswords(password, user.password);
+        
+        if (!passwordMatch) {
+          console.log(`[AUTH] Senha incorreta para usuário: ${username}`);
+          return done(null, false);
+        }
+        
+        console.log(`[AUTH] Login bem-sucedido para usuário: ${username}`);
+        return done(null, user);
       } catch (error) {
+        console.error(`[AUTH] Erro no login para usuário ${username}:`, error);
         return done(error);
       }
     }),
@@ -101,8 +114,30 @@ export function setupAuth(app: Express) {
     }
   });
 
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+  app.post("/api/login", (req, res, next) => {
+    console.log(`[AUTH] Recebida requisição de login para: ${req.body.username}`);
+    
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.error(`[AUTH] Erro na autenticação:`, err);
+        return res.status(500).json({ message: "Erro interno do servidor" });
+      }
+      
+      if (!user) {
+        console.log(`[AUTH] Falha na autenticação - usuário ou senha incorretos`);
+        return res.status(401).json({ message: "Usuário ou senha incorretos" });
+      }
+      
+      req.logIn(user, (err) => {
+        if (err) {
+          console.error(`[AUTH] Erro ao criar sessão:`, err);
+          return res.status(500).json({ message: "Erro interno do servidor" });
+        }
+        
+        console.log(`[AUTH] Login bem-sucedido, sessão criada para: ${user.username}`);
+        res.status(200).json(user);
+      });
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {
