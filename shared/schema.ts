@@ -6,13 +6,11 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
-  email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
   role: text("role").notNull().default("user"), // user, admin, super_admin
-  isActive: boolean("isActive").notNull().default(true),
-  ownerId: integer("ownerId").notNull().default(1), // tenant isolation
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  owner_id: integer("owner_id").notNull().default(1), // tenant isolation
+  created_at: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const categories = pgTable("categories", {
