@@ -10,9 +10,9 @@ import {
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import createMemoryStore from "memorystore";
 
-const PostgresSessionStore = connectPg(session);
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   sessionStore: session.Store;
@@ -86,9 +86,8 @@ export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
 
   constructor() {
-    this.sessionStore = new PostgresSessionStore({ 
-      pool,
-      createTableIfMissing: true 
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000,
     });
   }
 
@@ -125,7 +124,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: number): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id));
-    return ((result.rowCount ?? 0) || 0) > 0;
+    return result.length > 0;
   }
 
   async getCategories(owner_id: number): Promise<Category[]> {
@@ -152,8 +151,9 @@ export class DatabaseStorage implements IStorage {
   async deleteCategory(id: number, owner_id: number): Promise<boolean> {
     const result = await db
       .delete(categories)
-      .where(and(eq(categories.id, id), eq(categories.owner_id, owner_id)));
-    return ((result.rowCount ?? 0) || 0) > 0;
+      .where(and(eq(categories.id, id), eq(categories.owner_id, owner_id)))
+      .returning();
+    return result.length > 0;
   }
 
   async getSuppliers(owner_id: number): Promise<Supplier[]> {
@@ -181,7 +181,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(suppliers)
       .where(and(eq(suppliers.id, id), eq(suppliers.owner_id, owner_id)));
-    return ((result.rowCount ?? 0) || 0) > 0;
+    return result.length > 0;
   }
 
   async getEmployees(owner_id: number): Promise<Employee[]> {
@@ -209,7 +209,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(employees)
       .where(and(eq(employees.id, id), eq(employees.owner_id, owner_id)));
-    return ((result.rowCount ?? 0) || 0) > 0;
+    return result.length > 0;
   }
 
   async getMaterials(owner_id: number): Promise<Material[]> {
@@ -259,7 +259,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(materials)
       .where(and(eq(materials.id, id), eq(materials.owner_id, owner_id)));
-    return ((result.rowCount ?? 0) || 0) > 0;
+    return result.length > 0;
   }
 
   async updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', owner_id: number): Promise<void> {
