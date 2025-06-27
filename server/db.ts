@@ -8,21 +8,16 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Configuração do pool de conexões PostgreSQL
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  // Configurações adicionais para garantir conexão estável
-  max: 10, // máximo de conexões no pool
-  idleTimeoutMillis: 15000, // tempo limite para conexões inativas
-  connectionTimeoutMillis: 10000, // tempo limite para estabelecer conexão
-  statement_timeout: 30000, // timeout para queries
-  query_timeout: 30000, // timeout para queries
+  // Sem SSL para PostgreSQL local no EasyPanel
+  max: 10,
+  idleTimeoutMillis: 15000,
+  connectionTimeoutMillis: 10000,
 });
 
-// Configuração do Drizzle ORM com PostgreSQL
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
 
-// Função para testar a conexão
 export async function testConnection() {
   try {
     const client = await pool.connect();

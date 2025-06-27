@@ -23,9 +23,9 @@ This is a full-stack warehouse management system built with React, Express, and 
 - **API Design**: RESTful endpoints with proper error handling
 
 ### Database Design
-- **Primary Database**: PostgreSQL (configured for Neon serverless)
+- **Primary Database**: PostgreSQL (native pg driver for EasyPanel deployment)
 - **Schema Management**: Drizzle Kit for migrations and schema management
-- **Multi-tenancy**: Owner-based data isolation using `ownerId` field
+- **Multi-tenancy**: Owner-based data isolation using `owner_id` field
 - **Core Entities**: Users, Categories, Suppliers, Employees, Materials, Stock Entries/Exits
 
 ## Key Components
@@ -84,7 +84,7 @@ This is a full-stack warehouse management system built with React, Express, and 
 
 ### Development Environment
 - **Local Development**: Vite dev server with hot reload
-- **Database**: Neon PostgreSQL with WebSocket connections
+- **Database**: PostgreSQL with native pg driver
 - **Port Configuration**: Frontend (5000), Backend integrated
 
 ### Production Build
@@ -101,10 +101,11 @@ This is a full-stack warehouse management system built with React, Express, and 
 - **Environment**: Production-ready with proper database connection handling
 
 ### Deployment
-- **Platform**: Docker containerization ready
-- **Database URL**: postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+- **Platform**: EasyPanel with Docker containerization
+- **Database**: Native PostgreSQL service in EasyPanel
 - **Build Process**: docker build → docker run
 - **Auto-migration**: Schema pushed automatically on container startup
+- **Connection**: Local TCP connection (no SSL required)
 
 ## Changelog
 
@@ -124,6 +125,9 @@ Changelog:
 - June 25, 2025: Created production Dockerfile with PostgreSQL integration
 - June 25, 2025: Added health check endpoint and production-ready configuration
 - June 25, 2025: Ready for deployment with external PostgreSQL database
+- June 27, 2025: Migrated from Neon Database to native PostgreSQL for EasyPanel deployment
+- June 27, 2025: Fixed all database connection issues and field naming inconsistencies
+- June 27, 2025: Updated to use drizzle-orm/node-postgres for better EasyPanel compatibility
 ```
 
 ## User Preferences
