@@ -110,7 +110,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users).orderBy(users.createdAt);
+    return await db.select().from(users).orderBy(users.created_at);
   }
 
   async getCategories(ownerId: number): Promise<Category[]> {
