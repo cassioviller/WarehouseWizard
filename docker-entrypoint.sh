@@ -67,16 +67,27 @@ fi
 
 echo "Banco de dados conectado com sucesso!"
 
-# 4. Executar Migrações (Drizzle)
+# 4. Verificar/Criar Banco de Dados
+echo "Verificando se o banco de dados '$DB_NAME' existe..."
+
+# Extrair senha da DATABASE_URL
+export PGPASSWORD=$(echo $DATABASE_URL | sed -E 's/^.*:\/\/[^:]+:([^@]+)@.*/\1/')
+
+# Verificar se o banco existe, se não, criar
+if ! psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
+  echo "Banco de dados '$DB_NAME' não existe. Criando..."
+  psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -c "CREATE DATABASE \"$DB_NAME\""
+  echo "Banco de dados '$DB_NAME' criado com sucesso!"
+else
+  echo "Banco de dados '$DB_NAME' já existe."
+fi
+
+# 5. Executar Migrações (Drizzle)
 echo "Verificando se as tabelas do banco de dados existem..."
-# Usando -d para especificar o banco de dados explicitamente para psql
 if psql -d "$DB_NAME" -U "$PGUSER" -h "$PGHOST" -p "$PGPORT" -c "SELECT to_regclass('public.users');" | grep -q "users"; then
   echo "Tabela 'users' já existe, pulando migração."
 else
   echo "Tabela 'users' não existe. Executando migração inicial..."
-  
-  # Exibir DATABASE_URL antes de executar o npm run db:push para depuração
-  echo "DATABASE_URL antes de db:push: $DATABASE_URL"
   
   # Executar push do schema para o banco de dados
   NODE_ENV=production npm run db:push
