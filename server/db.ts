@@ -1,5 +1,5 @@
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
@@ -7,19 +7,22 @@ if (!process.env.DATABASE_URL) {
 }
 
 // Conexão flexível que funciona tanto em desenvolvimento quanto produção
-const queryClient = postgres(process.env.DATABASE_URL, {
-  ssl: process.env.DATABASE_URL.includes('sslmode=require'),
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL.includes('sslmode=require') ? { rejectUnauthorized: false } : false,
   max: 10,
-  connect_timeout: 10,
-  idle_timeout: 30
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
-export const db = drizzle(queryClient, { schema });
+export const db = drizzle(pool, { schema });
 
 export async function testConnection() {
   try {
-    const result = await queryClient`SELECT current_database() as db_name, current_user as user_name`;
-    console.log('Database connection successful:', result[0]);
+    const client = await pool.connect();
+    const result = await client.query('SELECT current_database() as db_name, current_user as user_name');
+    console.log('Database connection successful:', result.rows[0]);
+    client.release();
     return true;
   } catch (error) {
     console.error('Database connection failed:', error);

@@ -7,12 +7,12 @@ import {
   type StockEntryItem, type InsertStockEntryItem, type StockExit, type InsertStockExit,
   type StockExitItem, type InsertStockExitItem, type ThirdParty, type InsertThirdParty
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   sessionStore: session.Store;
@@ -87,7 +87,7 @@ export class DatabaseStorage implements IStorage {
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 
-      pool: pool as any, 
+      pool,
       createTableIfMissing: true 
     });
   }
