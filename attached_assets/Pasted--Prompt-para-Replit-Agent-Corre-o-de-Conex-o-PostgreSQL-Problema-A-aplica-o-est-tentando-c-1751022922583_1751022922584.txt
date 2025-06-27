@@ -1,0 +1,116 @@
+# Prompt para Replit Agent - Correção de Conexão PostgreSQL
+
+## Problema
+A aplicação está tentando conectar ao banco de dados "estruturas" em vez de "almoxarifado". O erro ocorre porque o arquivo `db.ts` está usando o driver `@neondatabase/serverless` que é incompatível com PostgreSQL regular.
+
+## Tarefas a Executar
+
+### 1. Atualizar Dependências
+```bash
+# Remover dependência do Neon Database
+npm uninstall @neondatabase/serverless
+
+# Instalar dependências corretas do PostgreSQL
+npm install pg drizzle-orm
+npm install --save-dev @types/pg
+```
+
+### 2. Substituir o arquivo `server/db.ts` (ou onde estiver localizado)
+Substitua todo o conteúdo por:
+
+```typescript
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from "@shared/schema";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
+}
+
+// Configuração do pool de conexões PostgreSQL
+export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  // Configurações adicionais para garantir conexão estável
+  max: 20, // máximo de conexões no pool
+  idleTimeoutMillis: 30000, // tempo limite para conexões inativas
+  connectionTimeoutMillis: 2000, // tempo limite para estabelecer conexão
+});
+
+// Configuração do Drizzle ORM com PostgreSQL
+export const db = drizzle({ client: pool, schema });
+
+// Função para testar a conexão
+export async function testConnection() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT current_database() as database_name');
+    console.log('Conectado ao banco de dados:', result.rows[0].database_name);
+    client.release();
+    return true;
+  } catch (error) {
+    console.error('Erro ao conectar ao banco de dados:', error);
+    return false;
+  }
+}
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Fechando pool de conexões...');
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Fechando pool de conexões...');
+  await pool.end();
+  process.exit(0);
+});
+```
+
+### 3. Verificar se o `drizzle.config.ts` está correto
+O arquivo deve estar assim (não alterar se já estiver correto):
+
+```typescript
+import { defineConfig } from "drizzle-kit";
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL, ensure the database is provisioned");
+}
+
+export default defineConfig({
+  out: "./migrations",
+  schema: "./shared/schema.ts",
+  dialect: "postgresql",
+  dbCredentials: {
+    url: process.env.DATABASE_URL,
+  },
+});
+```
+
+### 4. Verificar Variável de Ambiente
+Confirme que a `DATABASE_URL` nos Secrets está definida como:
+```
+postgres://estruturas:1234@viajey_cassio:5432/almoxarifado?sslmode=disable
+```
+
+### 5. Testar a Conexão (Opcional)
+Após as mudanças, execute este comando para testar:
+```bash
+node -e "
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+pool.query('SELECT current_database() as db_name')
+  .then(res => console.log('Banco conectado:', res.rows[0].db_name))
+  .catch(err => console.error('Erro:', err))
+  .finally(() => pool.end());
+"
+```
+
+## Resultado Esperado
+Após essas mudanças, a aplicação deve conectar corretamente ao banco "almoxarifado" e os logs devem mostrar "Conectado ao banco de dados: almoxarifado" em vez dos erros "database 'estruturas' does not exist".
+
+## Prioridade
+Esta é uma correção crítica que resolve um problema de incompatibilidade de driver de banco de dados. Execute todas as etapas na ordem apresentada.
+
