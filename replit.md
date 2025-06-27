@@ -128,6 +128,13 @@ Changelog:
 - June 27, 2025: Migrated from Neon Database to native PostgreSQL for EasyPanel deployment
 - June 27, 2025: Fixed all database connection issues and field naming inconsistencies
 - June 27, 2025: Updated to use drizzle-orm/node-postgres for better EasyPanel compatibility
+- June 27, 2025: Applied automatic PostgreSQL configuration fixes:
+  * Removed hard-coded ENV variables from Dockerfile
+  * Added dotenv/config import to server/index.ts
+  * Installed dotenv package
+  * Cleaned docker-entrypoint.sh (removed unset PG* commands)
+  * Validated API functionality - no more "database does not exist" errors
+  * System ready for EasyPanel deployment with postgres://estruturas:1234@viajey_cassio:5432/almoxarifado
 ```
 
 ## User Preferences
