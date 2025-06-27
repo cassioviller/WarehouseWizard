@@ -27,47 +27,47 @@ export interface IStorage {
   deleteUser(id: number): Promise<boolean>;
   
   // Third party methods
-  getThirdParties(ownerId: number): Promise<ThirdParty[]>;
+  getThirdParties(owner_id: number): Promise<ThirdParty[]>;
   createThirdParty(thirdParty: InsertThirdParty): Promise<ThirdParty>;
-  updateThirdParty(id: number, thirdParty: Partial<InsertThirdParty>, ownerId: number): Promise<ThirdParty | undefined>;
-  deleteThirdParty(id: number, ownerId: number): Promise<boolean>;
+  updateThirdParty(id: number, thirdParty: Partial<InsertThirdParty>, owner_id: number): Promise<ThirdParty | undefined>;
+  deleteThirdParty(id: number, owner_id: number): Promise<boolean>;
   
   // Category methods
-  getCategories(ownerId: number): Promise<Category[]>;
+  getCategories(owner_id: number): Promise<Category[]>;
   createCategory(category: InsertCategory): Promise<Category>;
-  updateCategory(id: number, category: Partial<InsertCategory>, ownerId: number): Promise<Category | undefined>;
-  deleteCategory(id: number, ownerId: number): Promise<boolean>;
+  updateCategory(id: number, category: Partial<InsertCategory>, owner_id: number): Promise<Category | undefined>;
+  deleteCategory(id: number, owner_id: number): Promise<boolean>;
   
   // Supplier methods
-  getSuppliers(ownerId: number): Promise<Supplier[]>;
+  getSuppliers(owner_id: number): Promise<Supplier[]>;
   createSupplier(supplier: InsertSupplier): Promise<Supplier>;
-  updateSupplier(id: number, supplier: Partial<InsertSupplier>, ownerId: number): Promise<Supplier | undefined>;
-  deleteSupplier(id: number, ownerId: number): Promise<boolean>;
+  updateSupplier(id: number, supplier: Partial<InsertSupplier>, owner_id: number): Promise<Supplier | undefined>;
+  deleteSupplier(id: number, owner_id: number): Promise<boolean>;
   
   // Employee methods
-  getEmployees(ownerId: number): Promise<Employee[]>;
+  getEmployees(owner_id: number): Promise<Employee[]>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
-  updateEmployee(id: number, employee: Partial<InsertEmployee>, ownerId: number): Promise<Employee | undefined>;
-  deleteEmployee(id: number, ownerId: number): Promise<boolean>;
+  updateEmployee(id: number, employee: Partial<InsertEmployee>, owner_id: number): Promise<Employee | undefined>;
+  deleteEmployee(id: number, owner_id: number): Promise<boolean>;
   
   // Material methods
-  getMaterials(ownerId: number): Promise<Material[]>;
-  getMaterialsWithCategory(ownerId: number): Promise<(Material & { category: Category | null })[]>;
+  getMaterials(owner_id: number): Promise<Material[]>;
+  getMaterialsWithCategory(owner_id: number): Promise<(Material & { category: Category | null })[]>;
   createMaterial(material: InsertMaterial): Promise<Material>;
-  updateMaterial(id: number, material: Partial<InsertMaterial>, ownerId: number): Promise<Material | undefined>;
-  deleteMaterial(id: number, ownerId: number): Promise<boolean>;
-  updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void>;
+  updateMaterial(id: number, material: Partial<InsertMaterial>, owner_id: number): Promise<Material | undefined>;
+  deleteMaterial(id: number, owner_id: number): Promise<boolean>;
+  updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', owner_id: number): Promise<void>;
   
   // Stock Entry methods
-  getStockEntries(ownerId: number): Promise<(StockEntry & { supplier: Supplier | null, employee: Employee | null })[]>;
+  getStockEntries(owner_id: number): Promise<(StockEntry & { supplier: Supplier | null, employee: Employee | null })[]>;
   createStockEntry(entry: InsertStockEntry, items: InsertStockEntryItem[]): Promise<StockEntry>;
   
   // Stock Exit methods
-  getStockExits(ownerId: number): Promise<(StockExit & { employee: Employee | null })[]>;
+  getStockExits(owner_id: number): Promise<(StockExit & { employee: Employee | null })[]>;
   createStockExit(exit: InsertStockExit, items: InsertStockExitItem[]): Promise<StockExit>;
   
   // Dashboard metrics
-  getDashboardMetrics(ownerId: number): Promise<{
+  getDashboardMetrics(owner_id: number): Promise<{
     totalMaterials: number;
     entriesToday: number;
     exitsToday: number;
@@ -75,7 +75,7 @@ export interface IStorage {
   }>;
   
   // Financial reports
-  getFinancialReport(ownerId: number): Promise<{
+  getFinancialReport(owner_id: number): Promise<{
     totalStockValue: number;
     totalItems: number;
     highValueItems: number;
@@ -129,7 +129,7 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
-  async getCategories(ownerId: number): Promise<Category[]> {
+  async getCategories(owner_id: number): Promise<Category[]> {
     return await db.select().from(categories).where(eq(categories.owner_id, ownerId));
   }
 
@@ -141,7 +141,7 @@ export class DatabaseStorage implements IStorage {
     return newCategory;
   }
 
-  async updateCategory(id: number, category: Partial<InsertCategory>, ownerId: number): Promise<Category | undefined> {
+  async updateCategory(id: number, category: Partial<InsertCategory>, owner_id: number): Promise<Category | undefined> {
     const [updated] = await db
       .update(categories)
       .set(category)
@@ -150,14 +150,14 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async deleteCategory(id: number, ownerId: number): Promise<boolean> {
+  async deleteCategory(id: number, owner_id: number): Promise<boolean> {
     const result = await db
       .delete(categories)
       .where(and(eq(categories.id, id), eq(categories.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
-  async getSuppliers(ownerId: number): Promise<Supplier[]> {
+  async getSuppliers(owner_id: number): Promise<Supplier[]> {
     return await db.select().from(suppliers).where(eq(suppliers.owner_id, ownerId));
   }
 
@@ -169,7 +169,7 @@ export class DatabaseStorage implements IStorage {
     return newSupplier;
   }
 
-  async updateSupplier(id: number, supplier: Partial<InsertSupplier>, ownerId: number): Promise<Supplier | undefined> {
+  async updateSupplier(id: number, supplier: Partial<InsertSupplier>, owner_id: number): Promise<Supplier | undefined> {
     const [updated] = await db
       .update(suppliers)
       .set(supplier)
@@ -178,14 +178,14 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async deleteSupplier(id: number, ownerId: number): Promise<boolean> {
+  async deleteSupplier(id: number, owner_id: number): Promise<boolean> {
     const result = await db
       .delete(suppliers)
       .where(and(eq(suppliers.id, id), eq(suppliers.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
-  async getEmployees(ownerId: number): Promise<Employee[]> {
+  async getEmployees(owner_id: number): Promise<Employee[]> {
     return await db.select().from(employees).where(eq(employees.owner_id, ownerId));
   }
 
@@ -197,7 +197,7 @@ export class DatabaseStorage implements IStorage {
     return newEmployee;
   }
 
-  async updateEmployee(id: number, employee: Partial<InsertEmployee>, ownerId: number): Promise<Employee | undefined> {
+  async updateEmployee(id: number, employee: Partial<InsertEmployee>, owner_id: number): Promise<Employee | undefined> {
     const [updated] = await db
       .update(employees)
       .set(employee)
@@ -206,30 +206,30 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async deleteEmployee(id: number, ownerId: number): Promise<boolean> {
+  async deleteEmployee(id: number, owner_id: number): Promise<boolean> {
     const result = await db
       .delete(employees)
       .where(and(eq(employees.id, id), eq(employees.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
-  async getMaterials(ownerId: number): Promise<Material[]> {
+  async getMaterials(owner_id: number): Promise<Material[]> {
     return await db.select().from(materials).where(eq(materials.owner_id, ownerId));
   }
 
-  async getMaterialsWithCategory(ownerId: number): Promise<(Material & { category: Category | null })[]> {
+  async getMaterialsWithCategory(owner_id: number): Promise<(Material & { category: Category | null })[]> {
     const result = await db
       .select({
         id: materials.id,
         name: materials.name,
         description: materials.description,
-        categoryId: materials.category_id,
+        category_id: materials.category_id,
         unit: materials.unit,
-        minimumStock: materials.minimum_stock,
+        minimum_stock: materials.minimum_stock,
         current_stock: materials.current_stock,
-        unitPrice: materials.unit_price,
-        ownerId: materials.owner_id,
-        createdAt: materials.created_at,
+        unit_price: materials.unit_price,
+        owner_id: materials.owner_id,
+        created_at: materials.created_at,
         category: categories,
       })
       .from(materials)
@@ -247,7 +247,7 @@ export class DatabaseStorage implements IStorage {
     return newMaterial;
   }
 
-  async updateMaterial(id: number, material: Partial<InsertMaterial>, ownerId: number): Promise<Material | undefined> {
+  async updateMaterial(id: number, material: Partial<InsertMaterial>, owner_id: number): Promise<Material | undefined> {
     const [updated] = await db
       .update(materials)
       .set(material)
@@ -256,14 +256,14 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async deleteMaterial(id: number, ownerId: number): Promise<boolean> {
+  async deleteMaterial(id: number, owner_id: number): Promise<boolean> {
     const result = await db
       .delete(materials)
       .where(and(eq(materials.id, id), eq(materials.owner_id, ownerId)));
     return (result.rowCount || 0) > 0;
   }
 
-  async updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', ownerId: number): Promise<void> {
+  async updateMaterialStock(material_id: number, quantity: number, operation: 'add' | 'subtract', owner_id: number): Promise<void> {
     const increment = operation === 'add' ? quantity : -quantity;
     await db
       .update(materials)
@@ -273,7 +273,7 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(materials.id, materialId), eq(materials.owner_id, ownerId)));
   }
 
-  async getStockEntries(ownerId: number): Promise<(StockEntry & { supplier: Supplier | null, employee: Employee | null })[]> {
+  async getStockEntries(owner_id: number): Promise<(StockEntry & { supplier: Supplier | null, employee: Employee | null })[]> {
     const result = await db
       .select({
         id: stockEntries.id,
@@ -290,7 +290,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(suppliers, eq(stockEntries.supplier_id, suppliers.id))
       .leftJoin(employees, eq(stockEntries.employee_id, employees.id))
       .where(eq(stockEntries.owner_id, ownerId))
-      .orderBy(desc(stockEntries.date));
+      .orderBy(desc(stockEntries.created_at));
     
     return result as (StockEntry & { supplier: Supplier | null, employee: Employee | null })[];
   }
@@ -304,32 +304,32 @@ export class DatabaseStorage implements IStorage {
     for (const item of items) {
       await db.insert(stockEntryItems).values({
         ...item,
-        entryId: newEntry.id,
+        stock_entry_id: newEntry.id,
       });
 
       // Update material stock
-      await this.updateMaterialStock(item.materialId!, item.quantity, 'add', entry.owner_id);
+      await this.updateMaterialStock(item.material_id!, item.quantity, 'add', entry.owner_id);
     }
 
     return newEntry;
   }
 
-  async getStockExits(ownerId: number): Promise<(StockExit & { employee: Employee | null })[]> {
+  async getStockExits(owner_id: number): Promise<(StockExit & { employee: Employee | null })[]> {
     const result = await db
       .select({
         id: stockExits.id,
-        date: stockExits.date,
-        destination: stockExits.destination,
-        employeeId: stockExits.employee_id,
+        date: stockExits.created_at,
+        destination: stockExits.purpose,
+        employee_id: stockExits.employee_id,
         notes: stockExits.notes,
-        ownerId: stockExits.owner_id,
-        createdAt: stockExits.created_at,
+        owner_id: stockExits.owner_id,
+        created_at: stockExits.created_at,
         employee: employees,
       })
       .from(stockExits)
       .leftJoin(employees, eq(stockExits.employee_id, employees.id))
       .where(eq(stockExits.owner_id, ownerId))
-      .orderBy(desc(stockExits.date));
+      .orderBy(desc(stockExits.created_at));
     
     return result as (StockExit & { employee: Employee | null })[];
   }
@@ -347,13 +347,13 @@ export class DatabaseStorage implements IStorage {
       });
 
       // Update material stock
-      await this.updateMaterialStock(item.materialId!, item.quantity, 'subtract', exit.owner_id);
+      await this.updateMaterialStock(item.material_id!, item.quantity, 'subtract', exit.owner_id);
     }
 
     return newExit;
   }
 
-  async getDashboardMetrics(ownerId: number): Promise<{
+  async getDashboardMetrics(owner_id: number): Promise<{
     totalMaterials: number;
     entriesToday: number;
     exitsToday: number;
@@ -372,7 +372,7 @@ export class DatabaseStorage implements IStorage {
       .from(stockEntries)
       .where(and(
         eq(stockEntries.owner_id, ownerId),
-        sql`${stockEntries.date} >= ${today}`
+        sql`${stockEntries.created_at} >= ${today}`
       ));
 
     const [exitsToday] = await db
@@ -380,7 +380,7 @@ export class DatabaseStorage implements IStorage {
       .from(stockExits)
       .where(and(
         eq(stockExits.owner_id, ownerId),
-        sql`${stockExits.date} >= ${today}`
+        sql`${stockExits.created_at} >= ${today}`
       ));
 
     const [criticalItems] = await db
@@ -399,7 +399,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async getThirdParties(ownerId: number): Promise<ThirdParty[]> {
+  async getThirdParties(owner_id: number): Promise<ThirdParty[]> {
     const result = await db.select().from(thirdParties).where(eq(thirdParties.owner_id, ownerId));
     return result;
   }
@@ -409,7 +409,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async updateThirdParty(id: number, thirdParty: Partial<InsertThirdParty>, ownerId: number): Promise<ThirdParty | undefined> {
+  async updateThirdParty(id: number, thirdParty: Partial<InsertThirdParty>, owner_id: number): Promise<ThirdParty | undefined> {
     const [result] = await db
       .update(thirdParties)
       .set(thirdParty)
@@ -418,14 +418,14 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async deleteThirdParty(id: number, ownerId: number): Promise<boolean> {
+  async deleteThirdParty(id: number, owner_id: number): Promise<boolean> {
     const result = await db
       .delete(thirdParties)
       .where(and(eq(thirdParties.id, id), eq(thirdParties.owner_id, ownerId)));
     return result.rowCount > 0;
   }
 
-  async getFinancialReport(ownerId: number): Promise<{
+  async getFinancialReport(owner_id: number): Promise<{
     totalStockValue: number;
     totalItems: number;
     highValueItems: number;

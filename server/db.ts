@@ -12,9 +12,11 @@ if (!process.env.DATABASE_URL) {
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
   // Configurações adicionais para garantir conexão estável
-  max: 20, // máximo de conexões no pool
-  idleTimeoutMillis: 30000, // tempo limite para conexões inativas
-  connectionTimeoutMillis: 2000, // tempo limite para estabelecer conexão
+  max: 10, // máximo de conexões no pool
+  idleTimeoutMillis: 15000, // tempo limite para conexões inativas
+  connectionTimeoutMillis: 10000, // tempo limite para estabelecer conexão
+  statement_timeout: 30000, // timeout para queries
+  query_timeout: 30000, // timeout para queries
 });
 
 // Configuração do Drizzle ORM com PostgreSQL

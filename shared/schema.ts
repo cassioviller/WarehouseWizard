@@ -265,7 +265,7 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
-  createdAt: true,
+  created_at: true,
 }).extend({
   email: z.string().email("Email inválido"),
   password: z.string().min(4, "Senha deve ter pelo menos 4 caracteres"),
