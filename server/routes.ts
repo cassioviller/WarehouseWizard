@@ -76,8 +76,9 @@ export function registerRoutes(app: Express): Server {
       
       const newUser = await storage.createUser({
         ...userData,
+        email: userData.email || `${userData.username}@empresa.com`,
         password: hashedPassword,
-        ownerId: 1,
+        owner_id: 1,
       });
       
       console.log("[USERS] Usuário criado:", newUser.username);
