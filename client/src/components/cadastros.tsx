@@ -48,8 +48,8 @@ export default function Cadastros() {
   );
 
   const getStatusBadge = (material: Material) => {
-    const currentStock = material.currentStock || 0;
-    const minimumStock = material.minimumStock || 0;
+    const currentStock = material.current_stock || 0;
+    const minimumStock = material.minimum_stock || 0;
 
     if (currentStock <= minimumStock) {
       return <Badge variant="destructive">Crítico</Badge>;
@@ -82,6 +82,78 @@ export default function Cadastros() {
       });
     },
   });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, userData }: { id: number, userData: any }) => {
+      const res = await apiRequest("PUT", `/api/users/${id}`, userData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setShowUserForm(false);
+      setEditingUser(null);
+      toast({
+        title: "Usuário atualizado com sucesso",
+        description: "As informações foram salvas.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao atualizar usuário",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/users/${id}`);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      toast({
+        title: "Usuário excluído com sucesso",
+        description: "O usuário foi removido do sistema.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao excluir usuário",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setShowUserForm(true);
+  };
+
+  const handleDeleteUser = (id: number) => {
+    if (confirm("Tem certeza que deseja excluir este usuário?")) {
+      deleteUserMutation.mutate(id);
+    }
+  };
+
+  const onSubmitUser = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const userData = {
+      username: formData.get('username') as string,
+      name: formData.get('name') as string,
+      password: formData.get('password') as string,
+      role: formData.get('role') as string,
+    };
+
+    if (editingUser) {
+      updateUserMutation.mutate({ id: editingUser.id, userData });
+    } else {
+      createUserMutation.mutate(userData);
+    }
+  };
 
   const subTabs = [
     { id: 'materials' as SubTab, label: 'Materiais' },
@@ -186,11 +258,11 @@ export default function Cadastros() {
                         </td>
                         <td className="py-4 px-4 text-center">
                           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                            {material.currentStock || 0} {material.unit}
+                            {material.current_stock || 0} {material.unit}
                           </Badge>
                         </td>
                         <td className="py-4 px-4 text-center text-gray-700">
-                          {material.minimumStock || 0} {material.unit}
+                          {material.minimum_stock || 0} {material.unit}
                         </td>
                         <td className="py-4 px-4 text-center">
                           {getStatusBadge(material)}
@@ -237,7 +309,10 @@ export default function Cadastros() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Gerenciar Usuários</h3>
               <Button 
-                onClick={() => setShowUserForm(true)}
+                onClick={() => {
+                  setEditingUser(null);
+                  setShowUserForm(true);
+                }}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -343,15 +418,24 @@ export default function Cadastros() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(userItem.createdAt).toLocaleDateString('pt-BR')}
+                          {new Date(userItem.created_at).toLocaleDateString('pt-BR')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            <Button variant="ghost" size="sm">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleEditUser(userItem)}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             {userItem.username !== 'cassio' && (
-                              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-900">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-red-600 hover:text-red-900"
+                                onClick={() => handleDeleteUser(userItem.id)}
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             )}

@@ -1,0 +1,112 @@
+Commit: Fix super admin panel and deployment issues in production
+
+Fixes update/delete user functions in the super admin panel and resolves deployment problems by changing the npm ci command in the Dockerfile.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: fb98f31e-0607-4770-9b80-2c7c1be7279c
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/a72f71e0-dc6b-4ba5-a5c9-dfb5c3077725/28279a6c-e3fb-4d17-a453-f5f2494d0d9a.jpg 
+##########################################
+### Download Github Archive Started...
+### Fri, 27 Jun 2025 10:44:00 GMT
+##########################################
+
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.21kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:20-slim
+#2 DONE 0.8s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 191B 0.0s done
+#3 DONE 0.0s
+
+#4 [1/8] FROM docker.io/library/node:20-slim@sha256:accd529f51eca09980605f278570579a9b9d32f952aa35a0758bc724fcc134ae
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 1.67MB 0.2s done
+#5 DONE 0.2s
+
+#6 [3/8] RUN apt-get update && apt-get install -y     postgresql-client     wget     curl     && rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [2/8] WORKDIR /app
+#7 CACHED
+
+#8 [4/8] COPY package*.json ./
+#8 CACHED
+
+#9 [5/8] RUN npm ci
+#9 6.663 npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+#9 6.666 npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+#9 18.11 
+#9 18.11 added 481 packages, and audited 482 packages in 18s
+#9 18.11 
+#9 18.11 64 packages are looking for funding
+#9 18.11   run `npm fund` for details
+#9 18.18 
+#9 18.18 9 vulnerabilities (1 low, 8 moderate)
+#9 18.18 
+#9 18.18 To address issues that do not require attention, run:
+#9 18.18   npm audit fix
+#9 18.18 
+#9 18.18 To address all issues (including breaking changes), run:
+#9 18.18   npm audit fix --force
+#9 18.18 
+#9 18.18 Run `npm audit` for details.
+#9 18.18 npm notice
+#9 18.18 npm notice New major version of npm available! 10.8.2 -> 11.4.2
+#9 18.18 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.4.2
+#9 18.18 npm notice To update run: npm install -g npm@11.4.2
+#9 18.18 npm notice
+#9 DONE 18.7s
+
+#10 [6/8] COPY . .
+#10 DONE 0.1s
+
+#11 [7/8] RUN chmod +x docker-entrypoint.sh
+#11 DONE 0.1s
+
+#12 [8/8] RUN npm run build
+#12 0.319 
+#12 0.319 > rest-express@1.0.0 build
+#12 0.319 > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+#12 0.319 
+#12 1.042 vite v5.4.19 building for production...
+#12 1.738 transforming...
+#12 1.820 Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+#12 1.820   npx update-browserslist-db@latest
+#12 1.820   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+#12 6.881 ✓ 1729 modules transformed.
+#12 7.245 rendering chunks...
+#12 7.257 computing gzip size...
+#12 7.284 ../dist/public/index.html                   0.63 kB │ gzip:   0.38 kB
+#12 7.284 ../dist/public/assets/index-DI5TSr9B.css   69.36 kB │ gzip:  11.82 kB
+#12 7.285 ../dist/public/assets/index-ChCE9gRb.js   470.55 kB │ gzip: 140.60 kB
+#12 7.285 ✓ built in 5.60s
+#12 7.355 
+#12 7.355   dist/index.js  42.9kb
+#12 7.355 
+#12 7.355 ⚡ Done in 13ms
+#12 DONE 7.4s
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 4.8s done
+#13 writing image sha256:b13858596b3e64bd173dff336899283f48d49eed5f4442d86d9f02a0de759c2d done
+#13 naming to docker.io/easypanel/viajey/almo done
+#13 DONE 4.8s
+
+ 5 warnings found (use docker --debug to expand):
+ - UndefinedVar: Usage of undefined variable '$DATABASE_URL' (line 33)
+ - UndefinedVar: Usage of undefined variable '$NODE_ENV' (line 34)
+ - UndefinedVar: Usage of undefined variable '$PORT' (line 35)
+ - UndefinedVar: Usage of undefined variable '$SESSION_SECRET' (line 36)
+ - SecretsUsedInArgOrEnv: Do not use ARG or ENV instructions for sensitive data (ENV "SESSION_SECRET") (line 36)
+##########################################
+### Success
+### Fri, 27 Jun 2025 10:44:33 GMT
+##########################################

@@ -97,14 +97,14 @@ export function registerRoutes(app: Express): Server {
       }
 
       const id = parseInt(req.params.id);
-      const userData = {
+      const userData: any = {
         username: req.body.username,
         name: req.body.name,
         role: req.body.role || 'user'
       };
 
       // Only hash password if provided
-      if (req.body.password) {
+      if (req.body.password && req.body.password.trim() !== '') {
         const hashedPassword = await hashPassword(req.body.password);
         userData.password = hashedPassword;
       }
