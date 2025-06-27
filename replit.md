@@ -153,6 +153,13 @@ Changelog:
   * Created simplified Dockerfile and docker-compose.yml for easier deployment
   * Added support for multiple environments: Replit (SSL), EasyPanel (no SSL), Docker (local)
   * System now auto-detects connection requirements without manual configuration
+- June 27, 2025: Applied exact working configuration from comissões project:
+  * Migrated from drizzle-orm/node-postgres to drizzle-orm/postgres-js for better compatibility
+  * Updated .env to use production DATABASE_URL format for EasyPanel deployment
+  * Simplified Dockerfile with postgresql-client tools and proper entrypoint script
+  * Fixed all storage.ts compatibility issues with postgres-js API (removed rowCount dependencies)
+  * Added dotenv/config import to server/index.ts for environment variable loading
+  * System validated and ready for EasyPanel deployment with postgres://estruturas:1234@viajey_cassio:5432/almoxarifado
 ```
 
 ## User Preferences

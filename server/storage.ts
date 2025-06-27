@@ -420,7 +420,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(thirdParties)
       .where(and(eq(thirdParties.id, id), eq(thirdParties.owner_id, owner_id)));
-    return (result.rowCount ?? 0) > 0;
+    return result.length > 0;
   }
 
   async getFinancialReport(owner_id: number): Promise<{
