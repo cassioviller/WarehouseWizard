@@ -36,11 +36,14 @@ export function registerRoutes(app: Express): Server {
   app.get("/api/users", requireAuth, async (req, res) => {
     try {
       const user = req.user as any;
+      console.log(`[USERS] Requisição de usuários por: ${user.username} (role: ${user.role})`);
+      
       if (user.role !== 'super_admin') {
         return res.status(403).json({ error: "Acesso negado" });
       }
       
       const users = await storage.getAllUsers();
+      console.log(`[USERS] ${users.length} usuários encontrados`);
       res.json(users);
     } catch (error) {
       console.error("Error fetching users:", error);
